@@ -1,4 +1,5 @@
 from math import inf
+import pygame
 import pygame_menu
 import queue
 import sys
@@ -54,13 +55,14 @@ class Game:
         self.board.initialize_pieces()
         self.ai_move = queue.Queue()
 
-    def set_name(self, name):
+    def set_name(self, name, value):
         """
         Sets name of human player
         :param name: name of human player (str)
+        :param value: new name of human player (str)
         :return: None
         """
-        self.p1_name = name
+        self.p1_name = value
 
     def set_color(self, color, value):
         """
@@ -94,23 +96,16 @@ class Game:
         Displays menu screen
         :return: None
         """
-        theme = pygame_menu.themes.Theme(title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_NONE,
-                                         menubar_close_button=False,
-                                         widget_font_color=SMALL_TEXT_COLOR,
-                                         background_color=BG_COLOR,
-                                         widget_font=pygame_menu.font.FONT_OPEN_SANS_BOLD,
-                                         cursor_color=WHITE)
+        menu = pygame_menu.Menu('Welcome', SCREEN_WIDTH, SCREEN_HEIGHT,
+                                theme=pygame_menu.themes.THEME_BLUE)
 
-        menu = pygame_menu.Menu(height=SCREEN_HEIGHT, width=SCREEN_WIDTH, title="", theme=theme, menu_position=(50, 0))
-        menu.add_label("ChessAI", align=pygame_menu.locals.ALIGN_CENTER, font_name=pygame_menu.font.FONT_OPEN_SANS_BOLD,
-                       font_color=LARGE_TEXT_COLOR, font_size=90, margin=(0, 50))
-        menu.add_text_input('Name : ', default=self.p1_name, maxchar=10, onchange=self.set_name)
-        menu.add_selector('Color : ', [('White', WHITE), ('Black', BLACK)], onchange=self.set_color)
-        menu.add_selector('AI : ', [('Minimax', 1), ('Random', 2)], onchange=self.set_ai)
-        menu.add_button('Play', self.game_screen)
-        menu.add_button('Quit', pygame_menu.events.EXIT)
-        menu.add_label("", align=pygame_menu.locals.ALIGN_CENTER, font_color=BLACK, font_size=70, margin=(0, 50))
-        menu.center_content()
+        menu.add.text_input('Name :', default=self.p1_name, maxchar=10, onchange=self.set_name)
+        menu.add.selector('Color :', [('Hard', 1), ('Easy', 2)], onchange=self.set_name, default=1)
+        menu.add.selector('AI : ', [('Minimax', 1), ('Random', 2)], onchange=self.set_ai, default=1)
+        menu.add.button('Play', self.game_screen)
+        menu.add.button('Quit', pygame_menu.events.EXIT)
+        # Keeps track of whether menu screen should keep running or stop
+        running = True
 
         # Keeps track of whether menu screen should keep running or stop
         running = True
@@ -340,11 +335,11 @@ class Game:
         """
         # Draw top name (player 2)
         pygame.draw.rect(SCREEN, BG_COLOR_LIGHT, [BOARD_X, BOARD_Y - 36, TILE_SIZE * 2, 28])
-        p1name = FONT.render(self.p2_name, True, SMALL_TEXT_COLOR)
+        p1name = FONT.render(f'{self.p2_name}', True, SMALL_TEXT_COLOR)
         SCREEN.blit(p1name, (BOARD_X + 4, BOARD_Y - 34))
         # Draw bottom name (player 1)
         pygame.draw.rect(SCREEN, BG_COLOR_LIGHT, [BOARD_X, BOARD_Y + BOARD_SIZE + 8, TILE_SIZE * 2, 28])
-        p2name = FONT.render(self.p1_name, True, SMALL_TEXT_COLOR)
+        p2name = FONT.render(f'{self.p1_name}', True, SMALL_TEXT_COLOR)
         SCREEN.blit(p2name, (BOARD_X + 4, BOARD_Y + BOARD_SIZE + 10))
 
     def draw_turn_indicator(self):
